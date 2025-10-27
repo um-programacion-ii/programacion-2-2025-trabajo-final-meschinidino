@@ -1,0 +1,32 @@
+# IDEs
+.idea/
+.vscode/
+*.iml
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Temporal
+tmp/
+temp/
+
+# Credenciales (IMPORTANTE)
+*.env
+.env.local
+secrets/
+credentials.txt
+tokens.txt
+
+# Build artifacts
+target/
+build/
+dist/
+*.jar
+*.war
