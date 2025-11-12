@@ -1,0 +1,27 @@
+spring:
+  application:
+    name: eventos-proxy
+
+  data:
+    redis:
+      host: ${REDIS_CATEDRA_HOST}
+      port: ${REDIS_CATEDRA_PORT:6379}
+
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
+    consumer:
+      group-id: ${KAFKA_CONSUMER_GROUP_ID:dmeschini-consumer-group}
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+
+server:
+  port: ${PROXY_PORT:8081}
+
+backend:
+  url: http://localhost:${BACKEND_PORT:8080}
+
+logging:
+  level:
+    com.eventos: DEBUG
+    org.springframework.kafka: DEBUG
