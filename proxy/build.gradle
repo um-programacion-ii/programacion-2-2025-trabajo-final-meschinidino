@@ -9,9 +9,8 @@ version = '0.0.1-SNAPSHOT'
 description = 'proxy'
 
 java {
-    toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
-    }
+    sourceCompatibility = '21'
+    targetCompatibility = '21'
 }
 
 configurations {
@@ -26,6 +25,8 @@ repositories {
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+    implementation 'io.lettuce:lettuce-core'
     implementation 'org.apache.kafka:kafka-streams'
     implementation 'org.springframework.kafka:spring-kafka'
     implementation 'org.springframework.session:spring-session-data-redis'
