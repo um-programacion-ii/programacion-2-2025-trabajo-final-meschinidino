@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: eventos-postgres
+    environment:
+      POSTGRES_DB: eventos_db
+      POSTGRES_USER: eventos_user
+      POSTGRES_PASSWORD: eventos_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - eventos-network
+
+  redis:
+    image: redis:7-alpine
+    container_name: eventos-redis
+    ports:
+      - "6379:6379"
+    networks:
+      - eventos-network
+
+volumes:
+  postgres_data:
+
+networks:
+  eventos-network:
+    driver: bridge
+

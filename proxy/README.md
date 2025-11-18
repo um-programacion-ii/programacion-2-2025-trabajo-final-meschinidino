@@ -56,9 +56,20 @@ El proxy consume mensajes de:
 
 ## Ejecución
 
+**Opción 1: Usando el script (recomendado)**
 ```bash
+./run-proxy.sh
+```
+
+**Opción 2: Exportando variables manualmente**
+```bash
+# Desde la raíz del proyecto
+source <(cat .env | grep -v '^#' | grep -v '^$' | sed 's/^/export /')
+cd proxy
 ./gradlew bootRun
 ```
+
+**Nota:** El proxy requiere que las variables de entorno estén configuradas en el archivo `.env` en la raíz del proyecto.
 
 ## Arquitectura
 

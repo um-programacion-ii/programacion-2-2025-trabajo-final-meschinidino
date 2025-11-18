@@ -5,12 +5,14 @@ spring:
   data:
     redis:
       host: ${REDIS_CATEDRA_HOST}
-      port: ${REDIS_CATEDRA_PORT:6379}
+      port: ${REDIS_CATEDRA_PORT}
 
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
+    listener:
+      auto-startup: true
     consumer:
-      group-id: ${KAFKA_CONSUMER_GROUP_ID:dmeschini-consumer-group}
+      group-id: ${KAFKA_CONSUMER_GROUP_ID}
       auto-offset-reset: earliest
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
@@ -23,5 +25,7 @@ backend:
 
 logging:
   level:
-    com.eventos: DEBUG
-    org.springframework.kafka: DEBUG
+    com.eventos: INFO
+    org.springframework.kafka: WARN
+    org.apache.kafka: ERROR
+    org.apache.kafka.clients.NetworkClient: ERROR

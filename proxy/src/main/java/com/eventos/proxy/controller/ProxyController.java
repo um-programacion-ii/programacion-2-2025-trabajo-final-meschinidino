@@ -1,160 +1,34 @@
 package com.eventos.proxy.controller;
 
+import com.eventos.proxy.service.CatedraProxyService;
 import com.eventos.proxy.service.RedisService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
 
-import jakarta.servlet.http.HttpServletRequest;
-import java.util.Enumeration;
+import java.util.List;
 import java.util.Map;
 
 /**
- * Controlador que hace forward de requests HTTP al backend
+ * Controlador proxy para comunicación con cátedra y consulta de Redis
+ *
+ * Este controlador actúa como intermediario entre el backend y los servicios de cátedra.
+ * Expone endpoints específicos para:
+ * - Consultar eventos desde cátedra
+ * - Consultar estado de asientos desde Redis
+ * - Bloquear asientos y realizar ventas en cátedra
  */
 @Slf4j
 @RestController
 @RequestMapping("/api")
 public class ProxyController {
 
-    @Value("${backend.url}")
-    private String backendUrl;
-
-    private final RestTemplate restTemplate;
-
-    public ProxyController() {
-        this.restTemplate = new RestTemplate();
-    }
-
-    /**
-     * Forward de GET requests
-     */
-    @GetMapping("/**")
-    public ResponseEntity<String> forwardGet(
-            HttpServletRequest request,
-            @RequestHeader HttpHeaders headers) {
-        
-        String path = request.getRequestURI();
-        String queryString = request.getQueryString();
-        String fullPath = queryString != null ? path + "?" + queryString : path;
-        
-        log.info("Forwarding GET {} to backend", fullPath);
-        
-        String url = backendUrl + fullPath;
-        HttpEntity<Void> entity = new HttpEntity<>(headers);
-        
-        try {
-            ResponseEntity<String> response = restTemplate.exchange(
-                url, 
-                HttpMethod.GET, 
-                entity, 
-                String.class
-            );
-            log.debug("Backend response: {}", response.getStatusCode());
-            return response;
-        } catch (Exception e) {
-            log.error("Error forwarding to backend: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_GATEWAY)
-                    .body("Error contacting backend: " + e.getMessage());
-        }
-    }
-
-    /**
-     * Forward de POST requests
-     */
-    @PostMapping("/**")
-    public ResponseEntity<String> forwardPost(
-            HttpServletRequest request,
-            @RequestBody(required = false) String body,
-            @RequestHeader HttpHeaders headers) {
-        
-        String path = request.getRequestURI();
-        log.info("Forwarding POST {} to backend", path);
-        
-        String url = backendUrl + path;
-        HttpEntity<String> entity = new HttpEntity<>(body, headers);
-        
-        try {
-            ResponseEntity<String> response = restTemplate.exchange(
-                url, 
-                HttpMethod.POST, 
-                entity, 
-                String.class
-            );
-            log.debug("Backend response: {}", response.getStatusCode());
-            return response;
-        } catch (Exception e) {
-            log.error("Error forwarding to backend: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_GATEWAY)
-                    .body("Error contacting backend: " + e.getMessage());
-        }
-    }
-
-    /**
-     * Forward de PUT requests
-     */
-    @PutMapping("/**")
-    public ResponseEntity<String> forwardPut(
-            HttpServletRequest request,
-            @RequestBody(required = false) String body,
-            @RequestHeader HttpHeaders headers) {
-        
-        String path = request.getRequestURI();
-        log.info("Forwarding PUT {} to backend", path);
-        
-        String url = backendUrl + path;
-        HttpEntity<String> entity = new HttpEntity<>(body, headers);
-        
-        try {
-            ResponseEntity<String> response = restTemplate.exchange(
-                url, 
-                HttpMethod.PUT, 
-                entity, 
-                String.class
-            );
-            log.debug("Backend response: {}", response.getStatusCode());
-            return response;
-        } catch (Exception e) {
-            log.error("Error forwarding to backend: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_GATEWAY)
-                    .body("Error contacting backend: " + e.getMessage());
-        }
-    }
-
-    /**
-     * Forward de DELETE requests
-     */
-    @DeleteMapping("/**")
-    public ResponseEntity<String> forwardDelete(
-            HttpServletRequest request,
-            @RequestHeader HttpHeaders headers) {
-        
-        String path = request.getRequestURI();
-        log.info("Forwarding DELETE {} to backend", path);
-        
-        String url = backendUrl + path;
-        HttpEntity<Void> entity = new HttpEntity<>(headers);
-        
-        try {
-            ResponseEntity<String> response = restTemplate.exchange(
-                url, 
-                HttpMethod.DELETE, 
-                entity, 
-                String.class
-            );
-            log.debug("Backend response: {}", response.getStatusCode());
-            return response;
-        } catch (Exception e) {
-            log.error("Error forwarding to backend: {}", e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_GATEWAY)
-                    .body("Error contacting backend: " + e.getMessage());
-        }
-    }
     @Autowired
     private RedisService redisService;
+
+    @Autowired
+    private CatedraProxyService catedraProxyService;
 
     /**
      * Endpoint específico para consultar asientos desde Redis
@@ -168,7 +42,31 @@ public class ProxyController {
         } catch (Exception e) {
             log.error("Error consultando Redis: {}", e.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body("Error consultando estado de asientos");
+                    .body(Map.of("error", "Error consultando estado de asientos"));
+        }
+    }
+
+    /**
+     * Endpoint para consultar un asiento específico
+     */
+    @GetMapping("/asientos/{eventoId}/{fila}/{columna}")
+    public ResponseEntity<?> obtenerAsiento(
+            @PathVariable Long eventoId,
+            @PathVariable int fila,
+            @PathVariable int columna) {
+        log.info("Consultando asiento [{},{}] del evento {}", fila, columna, eventoId);
+        try {
+            String estado = redisService.obtenerEstadoAsiento(eventoId, fila, columna);
+            return ResponseEntity.ok(Map.of(
+                "eventoId", eventoId,
+                "fila", fila,
+                "columna", columna,
+                "estado", estado
+            ));
+        } catch (Exception e) {
+            log.error("Error consultando Redis: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Error consultando asiento"));
         }
     }
 }

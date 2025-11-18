@@ -1,0 +1,361 @@
+{
+  "info": {
+    "name": "Sistema de Eventos - API",
+    "description": "Colección de endpoints para el sistema de eventos",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "username",
+      "value": "testuser",
+      "type": "string"
+    },
+    {
+      "key": "password",
+      "value": "password123",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{username}}\",\n  \"password\": \"{{password}}\",\n  \"email\": \"test@example.com\",\n  \"firstName\": \"Test\",\n  \"lastName\": \"User\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{username}}\",\n  \"password\": \"{{password}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Get Current User",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "me"]
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {"key": "username", "value": "{{username}}"},
+                {"key": "password", "value": "{{password}}"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/logout",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "logout"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Eventos",
+      "item": [
+        {
+          "name": "Listar Eventos",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/eventos",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "eventos"]
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {"key": "username", "value": "{{username}}"},
+                {"key": "password", "value": "{{password}}"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "Obtener Evento",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/eventos/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "eventos", "1"]
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {"key": "username", "value": "{{username}}"},
+                {"key": "password", "value": "{{password}}"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "Sincronizar Eventos",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/eventos/sincronizar",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "eventos", "sincronizar"]
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {"key": "username", "value": "{{username}}"},
+                {"key": "password", "value": "{{password}}"}
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Sesión",
+      "item": [
+        {
+          "name": "Obtener Sesión",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/sesion",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "sesion"]
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {"key": "username", "value": "{{username}}"},
+                {"key": "password", "value": "{{password}}"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "Actualizar Paso",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/sesion/paso?paso=DETALLE_EVENTO&eventoId=1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "sesion", "paso"],
+              "query": [
+                {"key": "paso", "value": "DETALLE_EVENTO"},
+                {"key": "eventoId", "value": "1"}
+              ]
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {"key": "username", "value": "{{username}}"},
+                {"key": "password", "value": "{{password}}"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "Seleccionar Asientos",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"eventoId\": 1,\n  \"asientos\": [\n    {\n      \"fila\": 1,\n      \"columna\": 1,\n      \"persona\": \"Juan Pérez\"\n    },\n    {\n      \"fila\": 1,\n      \"columna\": 2,\n      \"persona\": \"María García\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/sesion/seleccionar-asientos",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "sesion", "seleccionar-asientos"]
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {"key": "username", "value": "{{username}}"},
+                {"key": "password", "value": "{{password}}"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "Bloquear Asientos",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/sesion/bloquear-asientos",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "sesion", "bloquear-asientos"]
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {"key": "username", "value": "{{username}}"},
+                {"key": "password", "value": "{{password}}"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "Eliminar Sesión",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/sesion",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "sesion"]
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {"key": "username", "value": "{{username}}"},
+                {"key": "password", "value": "{{password}}"}
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Ventas",
+      "item": [
+        {
+          "name": "Realizar Venta",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/ventas/realizar",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "ventas", "realizar"]
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {"key": "username", "value": "{{username}}"},
+                {"key": "password", "value": "{{password}}"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "Listar Mis Ventas",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/ventas",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "ventas"]
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {"key": "username", "value": "{{username}}"},
+                {"key": "password", "value": "{{password}}"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "Obtener Venta",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/ventas/1",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "ventas", "1"]
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {"key": "username", "value": "{{username}}"},
+                {"key": "password", "value": "{{password}}"}
+              ]
+            }
+          }
+        },
+        {
+          "name": "Sincronizar Ventas",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/ventas/sincronizar",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "ventas", "sincronizar"]
+            },
+            "auth": {
+              "type": "basic",
+              "basic": [
+                {"key": "username", "value": "{{username}}"},
+                {"key": "password", "value": "{{password}}"}
+              ]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
+

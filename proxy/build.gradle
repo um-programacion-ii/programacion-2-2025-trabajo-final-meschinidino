@@ -9,8 +9,8 @@ version = '0.0.1-SNAPSHOT'
 description = 'proxy'
 
 java {
-    sourceCompatibility = '21'
-    targetCompatibility = '21'
+    sourceCompatibility = '24'
+    targetCompatibility = '24'
 }
 
 configurations {
@@ -24,14 +24,23 @@ repositories {
 }
 
 dependencies {
+    // Spring Boot
     implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    // Redis
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-    implementation 'io.lettuce:lettuce-core'
-    implementation 'org.apache.kafka:kafka-streams'
+
+    // Kafka
     implementation 'org.springframework.kafka:spring-kafka'
-    implementation 'org.springframework.session:spring-session-data-redis'
+
+    // DotEnv support
+    implementation 'me.paulschwarz:spring-dotenv:4.0.0'
+
+    // Lombok
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
+
+    // Testing
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.kafka:spring-kafka-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'

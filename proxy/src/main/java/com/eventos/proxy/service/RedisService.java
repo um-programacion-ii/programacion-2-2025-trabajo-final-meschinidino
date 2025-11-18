@@ -43,6 +43,17 @@ public class RedisService {
     }
 
     /**
+     * Obtiene el estado de un asiento específico
+     */
+    public String obtenerEstadoAsiento(Long eventoId, int fila, int columna) {
+        String key = String.format("evento:%d:asientos", eventoId);
+        String hashKey = String.format("fila:%d:columna:%d", fila, columna);
+        log.debug("Consultando asiento - key: {}, hashKey: {}", key, hashKey);
+        Object estado = redisTemplate.opsForHash().get(key, hashKey);
+        return estado != null ? estado.toString() : "Desconocido";
+    }
+
+    /**
      * Obtiene un valor específico de Redis
      */
     public Object obtener(String key) {

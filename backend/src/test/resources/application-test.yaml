@@ -1,0 +1,32 @@
+# Test Configuration
+spring:
+  application:
+    name: eventos-backend-test
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driver-class-name: org.h2.Driver
+    username: sa
+    password: 
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+catedra:
+  url: http://mock-catedra-url
+  token: mock-token
+
+proxy:
+  url: http://localhost:8081
+
+logging:
+  level:
+    com.eventos: INFO
+
