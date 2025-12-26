@@ -21,3 +21,26 @@ Sistema de registro de asistencia a eventos únicos (charlas, cursos, obras de t
 ## Estado del Proyecto
 
 En desarrollo - Trabajo Final 2025
+
+## Configuración Rápida
+
+1. Copiar `.env.example` a `.env` y completar valores.
+2. Ejecutar con Docker Compose:
+   ```bash
+   ./scripts/dev-up-docker.sh
+   ```
+3. Detener servicios:
+   ```bash
+   ./scripts/dev-down-docker.sh
+   ```
+
+## Ejecución Local (sin Docker)
+
+```bash
+./scripts/dev-up-local.sh
+```
+
+Para detener:
+```bash
+./scripts/dev-down-local.sh
+```

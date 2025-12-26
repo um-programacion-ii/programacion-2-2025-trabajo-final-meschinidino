@@ -14,19 +14,13 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.H2Dialect
-  data:
-    redis:
-      host: localhost
-      port: 6379
-
-catedra:
-  url: http://mock-catedra-url
-  token: mock-token
-
 proxy:
   url: http://localhost:8081
+
+sync:
+  webhook:
+    token: test-secret
 
 logging:
   level:
     com.eventos: INFO
-

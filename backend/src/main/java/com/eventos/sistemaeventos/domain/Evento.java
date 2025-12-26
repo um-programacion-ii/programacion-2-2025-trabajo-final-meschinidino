@@ -10,10 +10,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Entidad Evento - Copia local sincronizada desde cátedra
- * Referencia: Payload 4 y 5 del documento
- */
 @Entity
 @Table(name = "eventos")
 @Data
@@ -22,7 +18,7 @@ import java.util.List;
 public class Evento {
 
     @Id
-    private Long id; // Mismo ID que en cátedra
+    private Long id;
 
     @Column(nullable = false)
     private String titulo;
@@ -73,9 +69,6 @@ public class Evento {
         ultimaSincronizacion = LocalDateTime.now();
     }
 
-    /**
-     * Calcula el total de asientos del evento
-     */
     public Integer getTotalAsientos() {
         if (filaAsientos != null && columnaAsientos != null) {
             return filaAsientos * columnaAsientos;
@@ -83,4 +76,3 @@ public class Evento {
         return 0;
     }
 }
-

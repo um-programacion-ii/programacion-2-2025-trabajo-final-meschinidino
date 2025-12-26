@@ -16,6 +16,7 @@ Thumbs.db
 # Temporal
 tmp/
 temp/
+.dev-pids
 
 # Credenciales (IMPORTANTE)
 *.env

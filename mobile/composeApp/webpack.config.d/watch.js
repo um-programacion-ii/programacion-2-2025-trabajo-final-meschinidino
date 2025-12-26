@@ -8,6 +8,7 @@ config.watchOptions = config.watchOptions || {
 }
 
 if (config.devServer) {
+    config.devServer.port = 8082
     config.devServer.static = config.devServer.static.map(file => {
         if (typeof file === "string") {
             return {

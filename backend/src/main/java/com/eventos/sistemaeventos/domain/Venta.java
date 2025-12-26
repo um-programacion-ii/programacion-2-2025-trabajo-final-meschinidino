@@ -10,10 +10,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Entidad Venta - Registro local de ventas
- * Referencia: Payload 7, 8 y 9 del documento
- */
 @Entity
 @Table(name = "ventas")
 @Data
@@ -29,7 +25,7 @@ public class Venta {
     private Long eventoId;
     
     @Column(name = "venta_id_catedra")
-    private Long ventaIdCatedra; // ID de venta en el sistema de cátedra
+    private Long ventaIdCatedra;
     
     @Column(name = "fecha_venta", nullable = false)
     private LocalDateTime fechaVenta;
@@ -38,25 +34,18 @@ public class Venta {
     private BigDecimal precioVenta;
     
     @Column(nullable = false)
-    private Boolean resultado = false; // true: exitosa, false: fallida
+    private Boolean resultado = false;
     
     @Column(length = 500)
     private String descripcion;
     
     @Column(nullable = false)
-    private String username; // Usuario que realizó la compra
+    private String username;
     
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @JoinColumn(name = "venta_id")
     private List<AsientoVenta> asientos = new ArrayList<>();
     
-    /**
-     * Estado de sincronización con cátedra:
-     * - "PENDIENTE": No se ha enviado a cátedra
-     * - "PROCESANDO": Se está intentando enviar
-     * - "CONFIRMADA": Confirmada por cátedra
-     * - "FALLIDA": Rechazada por cátedra
-     */
     @Column(name = "estado_sincronizacion")
     private String estadoSincronizacion = "PENDIENTE";
     
@@ -73,4 +62,3 @@ public class Venta {
         }
     }
 }
-

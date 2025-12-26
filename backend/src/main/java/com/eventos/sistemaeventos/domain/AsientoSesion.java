@@ -5,9 +5,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
-/**
- * Asientos seleccionados durante una sesión
- */
 @Entity
 @Table(name = "asientos_sesion")
 @Data
@@ -25,9 +22,8 @@ public class AsientoSesion {
     @Column(nullable = false)
     private Integer columna;
     
-    private String persona; // Nombre de la persona asignada al asiento
+    private String persona;
     
     @Column(name = "bloqueado_en_catedra")
     private Boolean bloqueadoEnCatedra = false;
 }
-

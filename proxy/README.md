@@ -48,11 +48,13 @@ El proxy consume mensajes de:
 ## Variables de Entorno
 
 - `PROXY_PORT`: Puerto del proxy (default: 8081)
-- `BACKEND_PORT`: Puerto del backend (default: 8080)
-- `KAFKA_BOOTSTRAP_SERVERS`: Servidores de Kafka
-- `KAFKA_CONSUMER_GROUP_ID`: ID del grupo de consumidores (default: dmeschini-consumer-group)
-- `REDIS_CATEDRA_HOST`: Host del Redis de cátedra
-- `REDIS_CATEDRA_PORT`: Puerto del Redis (default: 6379)
+- `BACKEND_URL`: URL del backend (default: http://localhost:8080)
+- `CATEDRA_HOST`: Host base de cátedra (Redis y Kafka)
+- `CATEDRA_REDIS_PORT`: Puerto Redis de cátedra (default: 6379)
+- `CATEDRA_KAFKA_PORT`: Puerto Kafka de cátedra (default: 9092)
+- `CATEDRA_URL`: URL HTTP de cátedra
+- `CATEDRA_TOKEN`: Token JWT de cátedra
+- `KAFKA_CONSUMER_GROUP_ID`: ID del grupo de consumidores
 
 ## Ejecución
 
@@ -70,6 +72,7 @@ cd proxy
 ```
 
 **Nota:** El proxy requiere que las variables de entorno estén configuradas en el archivo `.env` en la raíz del proyecto.
+Variables clave: `CATEDRA_HOST`, `CATEDRA_URL`, `CATEDRA_TOKEN`, `CATEDRA_REDIS_PORT`, `CATEDRA_KAFKA_PORT`, `KAFKA_CONSUMER_GROUP_ID`.
 
 ## Arquitectura
 
@@ -78,4 +81,3 @@ El proxy actúa como intermediario entre clientes y el backend, permitiendo:
 - Logging centralizado
 - Procesamiento asíncrono de eventos vía Kafka
 - Integración con Redis de cátedra para sesiones compartidas
-

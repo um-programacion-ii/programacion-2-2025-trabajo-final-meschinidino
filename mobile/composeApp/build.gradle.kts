@@ -32,17 +32,18 @@ kotlin {
         binaries.executable()
     }
     
-    @OptIn(ExperimentalWasmDsl::class)
-    wasmJs {
-        browser()
-        binaries.executable()
-    }
     
     sourceSets {
         androidMain.dependencies {
             implementation(compose.preview)
             implementation(libs.ktor.client.cio)
             implementation(libs.androidx.activity.compose)
+        }
+        iosMain.dependencies {
+            implementation(libs.ktor.client.darwin)
+        }
+        jsMain.dependencies {
+            implementation(libs.ktor.client.js)
         }
         commonMain.dependencies {
             implementation(compose.runtime)
@@ -96,4 +97,3 @@ android {
 dependencies {
     debugImplementation(compose.uiTooling)
 }
-

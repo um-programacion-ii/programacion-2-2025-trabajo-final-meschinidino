@@ -9,10 +9,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Entidad Sesion - Mantiene el estado del proceso de compra
- * Referencia: Sección 4.4 del documento
- */
 @Entity
 @Table(name = "sesiones")
 @Data
@@ -21,21 +17,13 @@ import java.util.List;
 public class Sesion {
     
     @Id
-    private String sessionId; // UUID
+    private String sessionId;
     
     @Column(nullable = false)
     private String username;
     
     private Long eventoId;
     
-    /**
-     * Paso actual en el proceso:
-     * - "LISTADO_EVENTOS"
-     * - "DETALLE_EVENTO"
-     * - "SELECCION_ASIENTOS"
-     * - "CARGA_DATOS"
-     * - "CONFIRMACION"
-     */
     @Column(nullable = false)
     private String paso;
     
@@ -61,11 +49,7 @@ public class Sesion {
         this.lastActivity = LocalDateTime.now();
     }
     
-    /**
-     * Verifica si la sesión ha expirado (30 minutos de inactividad)
-     */
     public boolean isExpired() {
         return lastActivity.plusMinutes(30).isBefore(LocalDateTime.now());
     }
 }
-

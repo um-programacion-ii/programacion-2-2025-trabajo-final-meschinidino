@@ -7,10 +7,6 @@ import lombok.AllArgsConstructor;
 
 import java.time.LocalDateTime;
 
-/**
- * Entidad Usuario - Clientes que compran entradas
- * Nota: Para desarrollo, usar JHipster user management
- */
 @Entity
 @Table(name = "usuarios")
 @Data
@@ -45,4 +41,3 @@ public class Usuario {
         createdDate = LocalDateTime.now();
     }
 }
-

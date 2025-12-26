@@ -5,9 +5,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
-/**
- * Presentadores/organizadores de un evento
- */
 @Entity
 @Table(name = "integrantes")
 @Data
@@ -21,6 +18,5 @@ public class Integrante {
     
     private String nombre;
     private String apellido;
-    private String identificacion; // "Dra.", "Profesor", etc.
+    private String identificacion;
 }
-

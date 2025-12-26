@@ -1,44 +1,26 @@
 # Backend - Sistema de Eventos
 
-Backend implementado según `instrucciones_backend_inicial.md`.
+Backend implementado según `instrucciones_backend_inicial.md` y alineado a arquitectura limpia.
 
 ## Estructura del Proyecto
 
 ```
 src/main/java/com/eventos/sistemaeventos/
-├── domain/              # Entidades JPA
-│   ├── Usuario.java
-│   ├── Evento.java
-│   ├── Sesion.java
-│   ├── Venta.java
-│   ├── AsientoSesion.java
-│   ├── AsientoVenta.java
-│   ├── Integrante.java
-│   └── EventoTipo.java
-├── repository/          # Repositorios JPA
-│   ├── UsuarioRepository.java
-│   ├── EventoRepository.java
-│   ├── SesionRepository.java
-│   └── VentaRepository.java
-├── service/            # Lógica de negocio
-│   ├── CatedraService.java      # Integración con cátedra
-│   ├── EventoService.java       # Gestión de eventos
-│   ├── SesionService.java       # Gestión de sesiones
-│   ├── VentaService.java        # Gestión de ventas
-│   └── UsuarioService.java      # Gestión de usuarios
-├── controller/         # API REST
-│   ├── AuthController.java
-│   ├── EventoController.java
-│   ├── SesionController.java
-│   └── VentaController.java
-├── dto/               # DTOs
-│   ├── catedra/       # DTOs para API de cátedra
-│   └── ...            # DTOs para API propia
-├── config/            # Configuración
-│   ├── SecurityConfig.java
-│   └── RestTemplateConfig.java
-└── scheduled/         # Tareas programadas
-    └── ScheduledTasks.java
+├── domain/                     # Entidades JPA
+├── application/                # Casos de uso y puertos
+│   ├── dto/catedra/            # DTOs para integración externa
+│   ├── port/external/          # Puertos de integración
+│   ├── port/repository/        # Puertos de persistencia
+│   └── service/                # Lógica de negocio
+├── infrastructure/             # Implementaciones técnicas
+│   ├── config/                 # Configuración Spring
+│   ├── external/               # Cliente del proxy
+│   ├── persistence/            # Repositorios JPA
+│   └── scheduled/              # Tareas programadas
+└── presentation/               # API REST
+    ├── controller/
+    ├── dto/
+    └── exception/
 ```
 
 ## Endpoints Implementados
@@ -51,9 +33,12 @@ src/main/java/com/eventos/sistemaeventos/
 
 ### Eventos (`/api/eventos`)
 - `GET /api/eventos` - Listar eventos activos
-- `GET /api/eventos/{id}` - Obtener evento específico
+- `GET /api/eventos/{id}` - Obtener evento específico con asientos desde el proxy
 - `POST /api/eventos/sincronizar` - Sincronizar eventos desde cátedra
 - `POST /api/eventos/{id}/sincronizar` - Sincronizar evento específico
+
+### Sincronización (`/api/sync`)
+- `POST /api/sync/webhook` - Recibir cambios de eventos desde el proxy (requiere header `X-Webhook-Token`)
 
 ### Sesiones (`/api/sesion`)
 - `GET /api/sesion` - Obtener sesión actual
@@ -70,7 +55,7 @@ src/main/java/com/eventos/sistemaeventos/
 
 ## Configuración
 
-Variables de entorno requeridas (ver `.env.example`):
+Variables de entorno requeridas (ver `.env.example` en la raíz del repo):
 
 ```properties
 # Database
@@ -80,17 +65,10 @@ DB_NAME=eventos_db
 DB_USER=eventos_user
 DB_PASSWORD=eventos_pass
 
-# Redis
-REDIS_LOCAL_HOST=localhost
-REDIS_LOCAL_PORT=6379
-
-# Cátedra
-CATEDRA_URL=https://catedra-api.com
-CATEDRA_TOKEN=tu-token-aqui
-
 # Server
 BACKEND_PORT=8080
 PROXY_PORT=8081
+SYNC_WEBHOOK_TOKEN=change-me
 ```
 
 ## Compilar y Ejecutar
@@ -118,13 +96,10 @@ Desde Swagger UI puedes:
 - 🔐 Autenticarte y hacer requests reales
 - 📋 Ver modelos de datos y ejemplos
 
-Ver guía completa en: **[SWAGGER.md](SWAGGER.md)**
 
 ## Base de Datos
 
-El backend utiliza:
-- **PostgreSQL** para persistencia de datos
-- **Redis** para gestión de sesiones HTTP
+El backend utiliza **PostgreSQL** para persistencia de datos.
 
 Las tablas se crean automáticamente gracias a `spring.jpa.hibernate.ddl-auto=update`.
 
@@ -134,13 +109,13 @@ Las tablas se crean automáticamente gracias a `spring.jpa.hibernate.ddl-auto=up
 ✅ **Gestión de Eventos**: Sincronización con cátedra, consulta local
 ✅ **Gestión de Sesiones**: Estado del proceso de compra, timeout automático
 ✅ **Gestión de Ventas**: Venta de entradas, sincronización con cátedra
-✅ **Integración con Cátedra**: Consumo de todos los endpoints requeridos
+✅ **Integración con Proxy**: Consumo de endpoints del proxy para cátedra
 ✅ **Seguridad**: Spring Security con autenticación básica
 ✅ **Limpieza Automática**: Sesiones expiradas se limpian cada 10 minutos
 
 ## Integración con Cátedra
 
-El servicio `CatedraService` implementa todos los endpoints requeridos:
+El cliente `ProxyGatewayClient` consume los endpoints del proxy para:
 
 1. `GET /api/endpoints/v1/eventos-resumidos` - Listado resumido
 2. `GET /api/endpoints/v1/eventos` - Listado completo
@@ -166,6 +141,5 @@ El servicio `CatedraService` implementa todos los endpoints requeridos:
 - Las sesiones expiran después de 30 minutos de inactividad
 - Los eventos se sincronizan bajo demanda desde cátedra
 - Las ventas se registran localmente y en cátedra
-- Spring Security maneja la autenticación con sesiones HTTP en Redis
+- Spring Security maneja la autenticación con sesiones HTTP
 - CORS configurado para desarrollo (localhost:3000, localhost:8080)
-

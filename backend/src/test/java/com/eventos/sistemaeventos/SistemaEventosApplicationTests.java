@@ -1,9 +1,9 @@
 package com.eventos.sistemaeventos;
 
-import com.eventos.sistemaeventos.repository.EventoRepository;
-import com.eventos.sistemaeventos.repository.UsuarioRepository;
-import com.eventos.sistemaeventos.repository.VentaRepository;
-import com.eventos.sistemaeventos.service.CatedraService;
+import com.eventos.sistemaeventos.application.port.external.ProxyGateway;
+import com.eventos.sistemaeventos.infrastructure.persistence.EventoRepository;
+import com.eventos.sistemaeventos.infrastructure.persistence.UsuarioRepository;
+import com.eventos.sistemaeventos.infrastructure.persistence.VentaRepository;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -25,16 +25,14 @@ class SistemaEventosApplicationTests {
     private VentaRepository ventaRepository;
 
     @Autowired(required = false)
-    private CatedraService catedraService;
+    private ProxyGateway proxyGateway;
 
     @Test
     void contextLoads() {
-        // Verifica que el contexto de Spring carga correctamente
     }
 
     @Test
     void repositoriesAreInjected() {
-        // Verifica que los repositorios se inyectan correctamente
         assertThat(usuarioRepository).isNotNull();
         assertThat(eventoRepository).isNotNull();
         assertThat(ventaRepository).isNotNull();
@@ -42,8 +40,6 @@ class SistemaEventosApplicationTests {
 
     @Test
     void servicesAreInjected() {
-        // Verifica que los servicios se inyectan correctamente
-        assertThat(catedraService).isNotNull();
+        assertThat(proxyGateway).isNotNull();
     }
 }
-
