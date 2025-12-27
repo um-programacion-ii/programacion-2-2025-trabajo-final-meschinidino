@@ -1,5 +1,6 @@
 package com.eventos.sistemaeventos.application.dto.catedra;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import lombok.Data;
 import java.math.BigDecimal;
 import java.time.OffsetDateTime;
@@ -15,6 +16,7 @@ public class EventoCatedraDTO {
     private String direccion;
     private String imagen;
     private Integer filaAsientos;
+    @JsonAlias("columnAsientos")
     private Integer columnaAsientos;
     private BigDecimal precioEntrada;
     private EventoTipoDTO eventoTipo;

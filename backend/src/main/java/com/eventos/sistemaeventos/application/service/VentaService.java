@@ -47,8 +47,8 @@ public class VentaService {
         request.setAsientos(
             sesion.getAsientosSeleccionados().stream()
                 .map(a -> new VentaCatedraRequestDTO.AsientoVentaDTO(
-                    a.getFila(), 
-                    a.getColumna(), 
+                    a.getFila(),
+                    a.getColumna(),
                     a.getPersona()
                 ))
                 .collect(Collectors.toList())
@@ -57,35 +57,54 @@ public class VentaService {
         VentaCatedraResponseDTO response = proxyGateway.realizarVenta(request);
 
         Venta venta = new Venta();
-        venta.setEventoId(response.getEventoId());
+        venta.setEventoId(request.getEventoId());
         venta.setVentaIdCatedra(response.getVentaId());
         if (response.getFechaVenta() != null) {
             venta.setFechaVenta(response.getFechaVenta().toLocalDateTime());
         }
-        venta.setPrecioVenta(response.getPrecioVenta());
-        venta.setResultado(response.getResultado());
+        venta.setPrecioVenta(response.getPrecioVenta() != null ? response.getPrecioVenta() : request.getPrecioVenta());
+        venta.setResultado(Boolean.TRUE.equals(response.getResultado()));
         venta.setDescripcion(response.getDescripcion());
         venta.setUsername(username);
-        venta.setEstadoSincronizacion(response.getResultado() ? "CONFIRMADA" : "FALLIDA");
+        venta.setEstadoSincronizacion(venta.getResultado() ? "CONFIRMADA" : "PENDIENTE");
         
+        List<AsientoVenta> asientos = sesion.getAsientosSeleccionados().stream()
+                .map(a -> {
+                    AsientoVenta asiento = new AsientoVenta();
+                    asiento.setFila(a.getFila());
+                    asiento.setColumna(a.getColumna());
+                    asiento.setPersona(a.getPersona());
+                    asiento.setEstado("PENDIENTE");
+                    return asiento;
+                })
+                .collect(Collectors.toList());
+
         if (response.getAsientos() != null) {
-            List<AsientoVenta> asientos = response.getAsientos().stream()
-                    .map(a -> {
-                        AsientoVenta asiento = new AsientoVenta();
-                        asiento.setFila(a.getFila());
-                        asiento.setColumna(a.getColumna());
-                        asiento.setPersona(a.getPersona());
-                        asiento.setEstado(a.getEstado());
-                        return asiento;
-                    })
-                    .collect(Collectors.toList());
-            
-            venta.getAsientos().addAll(asientos);
+            var estadoPorAsiento = response.getAsientos().stream()
+                    .collect(Collectors.toMap(
+                            a -> a.getFila() + ":" + a.getColumna(),
+                            a -> a
+                    ));
+
+            asientos.forEach(asiento -> {
+                var key = asiento.getFila() + ":" + asiento.getColumna();
+                var estado = estadoPorAsiento.get(key);
+                if (estado != null) {
+                    asiento.setEstado(estado.getEstado());
+                    if (estado.getPersona() != null && !estado.getPersona().isBlank()) {
+                        asiento.setPersona(estado.getPersona());
+                    }
+                }
+            });
         }
+
+        venta.getAsientos().addAll(asientos);
         
         venta = ventaRepository.save(venta);
         
-        sesionService.eliminarSesion(username);
+        if (venta.getResultado()) {
+            sesionService.eliminarSesion(username);
+        }
         
         log.info("Venta completada. ID local: {}, ID cátedra: {}, Resultado: {}", 
                 venta.getId(), venta.getVentaIdCatedra(), venta.getResultado());
@@ -116,22 +135,74 @@ public class VentaService {
     }
     
     @Transactional
-    public void reintentarVentasFallidas() {
+    public void reintentarVentasPendientes() {
         List<Venta> ventasPendientes = ventaRepository.findByEstadoSincronizacion("PENDIENTE");
-        
+
         log.info("Reintentando {} ventas pendientes", ventasPendientes.size());
-        
+
         for (Venta venta : ventasPendientes) {
-            if (venta.getIntentosSincronizacion() < 3) {
-                try {
-                    venta.setIntentosSincronizacion(venta.getIntentosSincronizacion() + 1);
-                    venta.setUltimoIntento(LocalDateTime.now());
-                    ventaRepository.save(venta);
-                    
-                } catch (Exception e) {
-                    log.error("Error reintentando venta {}: {}", venta.getId(), e.getMessage());
+            try {
+                VentaCatedraRequestDTO request = construirRequestDesdeVenta(venta);
+                VentaCatedraResponseDTO response = proxyGateway.realizarVenta(request);
+
+                venta.setIntentosSincronizacion(venta.getIntentosSincronizacion() + 1);
+                venta.setUltimoIntento(LocalDateTime.now());
+                venta.setResultado(Boolean.TRUE.equals(response.getResultado()));
+                venta.setDescripcion(response.getDescripcion());
+                if (response.getVentaId() != null) {
+                    venta.setVentaIdCatedra(response.getVentaId());
                 }
+                if (response.getFechaVenta() != null) {
+                    venta.setFechaVenta(response.getFechaVenta().toLocalDateTime());
+                }
+                if (response.getPrecioVenta() != null) {
+                    venta.setPrecioVenta(response.getPrecioVenta());
+                }
+
+                if (response.getAsientos() != null) {
+                    var estadoPorAsiento = response.getAsientos().stream()
+                            .collect(Collectors.toMap(
+                                    a -> a.getFila() + ":" + a.getColumna(),
+                                    a -> a
+                            ));
+
+                    venta.getAsientos().forEach(asiento -> {
+                        var key = asiento.getFila() + ":" + asiento.getColumna();
+                        var estado = estadoPorAsiento.get(key);
+                        if (estado != null) {
+                            asiento.setEstado(estado.getEstado());
+                            if (estado.getPersona() != null && !estado.getPersona().isBlank()) {
+                                asiento.setPersona(estado.getPersona());
+                            }
+                        }
+                    });
+                }
+
+                venta.setEstadoSincronizacion(venta.getResultado() ? "CONFIRMADA" : "PENDIENTE");
+                ventaRepository.save(venta);
+            } catch (Exception e) {
+                venta.setIntentosSincronizacion(venta.getIntentosSincronizacion() + 1);
+                venta.setUltimoIntento(LocalDateTime.now());
+                ventaRepository.save(venta);
+                log.error("Error reintentando venta {}: {}", venta.getId(), e.getMessage());
             }
         }
+    }
+
+    private VentaCatedraRequestDTO construirRequestDesdeVenta(Venta venta) {
+        VentaCatedraRequestDTO request = new VentaCatedraRequestDTO();
+        request.setEventoId(venta.getEventoId());
+        request.setFecha(OffsetDateTime.now(ZoneOffset.UTC));
+        request.setPrecioVenta(venta.getPrecioVenta());
+        request.setAsientos(
+                venta.getAsientos().stream()
+                        .map(a -> new VentaCatedraRequestDTO.AsientoVentaDTO(
+                                a.getFila(),
+                                a.getColumna(),
+                                a.getPersona()
+                        ))
+                        .collect(Collectors.toList())
+        );
+        return request;
     }
 }

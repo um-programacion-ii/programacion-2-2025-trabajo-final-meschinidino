@@ -22,25 +22,45 @@ Sistema de registro de asistencia a eventos únicos (charlas, cursos, obras de t
 
 En desarrollo - Trabajo Final 2025
 
-## Configuración Rápida
+## Configuración Rápida (Docker Compose)
 
-1. Copiar `.env.example` a `.env` y completar valores.
-2. Ejecutar con Docker Compose:
+1. Copiar `.env.example` a `.env` y completar valores (incluye `SYNC_WEBHOOK_TOKEN` y `SERVICE_JWT_SECRET`).
+2. Levantar servicios:
    ```bash
-   ./scripts/dev-up-docker.sh
+   docker compose up -d --build
    ```
 3. Detener servicios:
    ```bash
-   ./scripts/dev-down-docker.sh
+   docker compose down
    ```
 
-## Ejecución Local (sin Docker)
+Para más detalle, ver `docs/SETUP.md`.
 
-```bash
-./scripts/dev-up-local.sh
-```
+## Variables de Entorno Requeridas
 
-Para detener:
-```bash
-./scripts/dev-down-local.sh
+```properties
+# Servicio de Cátedra
+CATEDRA_HOST=192.168.194.250
+CATEDRA_URL=http://192.168.194.250:8080
+CATEDRA_TOKEN=...
+
+# PostgreSQL (Backend)
+DB_HOST=localhost
+DB_PORT=5432
+DB_NAME=eventos_db
+DB_USER=eventos_user
+DB_PASSWORD=eventos_pass
+
+# Redis / Kafka Cátedra (Proxy)
+CATEDRA_REDIS_PORT=6379
+CATEDRA_KAFKA_PORT=9092
+KAFKA_CONSUMER_GROUP_ID=tu-consumer-group
+
+# Puertos de servicios
+BACKEND_PORT=8080
+PROXY_PORT=8081
+
+# Webhook sync + JWT servicio a servicio
+SYNC_WEBHOOK_TOKEN=...
+SERVICE_JWT_SECRET=...
 ```

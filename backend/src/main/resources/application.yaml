@@ -38,3 +38,10 @@ logging:
   level:
     com.eventos: DEBUG
     org.springframework.web: DEBUG
+
+service:
+  jwt:
+    secret: ${SERVICE_JWT_SECRET}
+    issuer: ${SERVICE_JWT_ISSUER:eventos-backend}
+    expected-issuer: ${SERVICE_JWT_EXPECTED_ISSUER:eventos-proxy}
+    ttl-seconds: ${SERVICE_JWT_TTL_SECONDS:300}

@@ -38,7 +38,7 @@ src/main/java/com/eventos/sistemaeventos/
 - `POST /api/eventos/{id}/sincronizar` - Sincronizar evento específico
 
 ### Sincronización (`/api/sync`)
-- `POST /api/sync/webhook` - Recibir cambios de eventos desde el proxy (requiere header `X-Webhook-Token`)
+- `POST /api/sync/webhook` - Recibir cambios de eventos desde el proxy (requiere `Authorization: Bearer <jwt>` o header `X-Webhook-Token`)
 
 ### Sesiones (`/api/sesion`)
 - `GET /api/sesion` - Obtener sesión actual
@@ -68,7 +68,10 @@ DB_PASSWORD=eventos_pass
 # Server
 BACKEND_PORT=8080
 PROXY_PORT=8081
-SYNC_WEBHOOK_TOKEN=change-me
+
+# Webhook sync + JWT servicio a servicio
+SYNC_WEBHOOK_TOKEN=...
+SERVICE_JWT_SECRET=...
 ```
 
 ## Compilar y Ejecutar
@@ -108,7 +111,7 @@ Las tablas se crean automáticamente gracias a `spring.jpa.hibernate.ddl-auto=up
 ✅ **Gestión de Usuarios**: Registro, login, autenticación
 ✅ **Gestión de Eventos**: Sincronización con cátedra, consulta local
 ✅ **Gestión de Sesiones**: Estado del proceso de compra, timeout automático
-✅ **Gestión de Ventas**: Venta de entradas, sincronización con cátedra
+✅ **Gestión de Ventas**: Venta de entradas, sincronización con cátedra y reintentos pendientes
 ✅ **Integración con Proxy**: Consumo de endpoints del proxy para cátedra
 ✅ **Seguridad**: Spring Security con autenticación básica
 ✅ **Limpieza Automática**: Sesiones expiradas se limpian cada 10 minutos
@@ -140,6 +143,6 @@ El cliente `ProxyGatewayClient` consume los endpoints del proxy para:
 
 - Las sesiones expiran después de 30 minutos de inactividad
 - Los eventos se sincronizan bajo demanda desde cátedra
-- Las ventas se registran localmente y en cátedra
+- Las ventas pendientes se reintentan automáticamente cada 5 minutos
 - Spring Security maneja la autenticación con sesiones HTTP
 - CORS configurado para desarrollo (localhost:3000, localhost:8080)

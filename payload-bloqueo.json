@@ -1,7 +1,0 @@
-{
-  "eventoId": 1,
-  "asientos": [
-    { "fila": 2, "columna": 1 },
-    { "fila": 2, "columna": 2 }
-  ]
-}

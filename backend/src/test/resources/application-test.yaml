@@ -21,6 +21,13 @@ sync:
   webhook:
     token: test-secret
 
+service:
+  jwt:
+    secret: test-secret
+    issuer: eventos-backend
+    expected-issuer: eventos-proxy
+    ttl-seconds: 300
+
 logging:
   level:
     com.eventos: INFO

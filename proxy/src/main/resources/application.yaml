@@ -22,6 +22,7 @@ server:
 
 backend:
   url: ${BACKEND_URL:http://localhost:${BACKEND_PORT:8080}}
+  webhook-token: ${SYNC_WEBHOOK_TOKEN}
 
 catedra:
   url: ${CATEDRA_URL}
@@ -33,3 +34,10 @@ logging:
     org.springframework.kafka: WARN
     org.apache.kafka: ERROR
     org.apache.kafka.clients.NetworkClient: ERROR
+
+service:
+  jwt:
+    secret: ${SERVICE_JWT_SECRET}
+    issuer: ${SERVICE_JWT_ISSUER:eventos-proxy}
+    expected-issuer: ${SERVICE_JWT_EXPECTED_ISSUER:eventos-backend}
+    ttl-seconds: ${SERVICE_JWT_TTL_SECONDS:300}

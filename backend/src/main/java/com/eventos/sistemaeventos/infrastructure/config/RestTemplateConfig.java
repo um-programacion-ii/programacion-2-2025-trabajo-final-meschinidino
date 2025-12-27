@@ -9,13 +9,19 @@ import org.springframework.web.client.RestTemplate;
 
 import java.time.Duration;
 
+import com.eventos.sistemaeventos.infrastructure.security.ServiceJwtProvider;
+
 @Configuration
 public class RestTemplateConfig {
 
     @Bean
-    public RestTemplate restTemplate(RestTemplateBuilder builder) {
+    public RestTemplate restTemplate(RestTemplateBuilder builder, ServiceJwtProvider serviceJwtProvider) {
         return builder
                 .requestFactory(this::clientHttpRequestFactory)
+                .additionalInterceptors((request, body, execution) -> {
+                    request.getHeaders().setBearerAuth(serviceJwtProvider.createToken());
+                    return execution.execute(request, body);
+                })
                 .build();
     }
 
@@ -26,4 +32,3 @@ public class RestTemplateConfig {
         return factory;
     }
 }
-

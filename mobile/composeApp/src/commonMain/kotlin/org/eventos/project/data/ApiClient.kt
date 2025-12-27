@@ -124,6 +124,13 @@ class ApiClient(private val baseUrl: String) {
         )
     }
 
+    suspend fun register(request: RegisterRequest): ApiResult<RegisterResponse> {
+        return safePost(
+            path = "/api/auth/register",
+            body = request,
+        )
+    }
+
     suspend fun logout(credentials: Credentials): ApiResult<JsonElement> {
         return safePost("/api/auth/logout", credentials = credentials)
     }
@@ -173,6 +180,10 @@ class ApiClient(private val baseUrl: String) {
 
     suspend fun realizarVenta(credentials: Credentials): ApiResult<VentaResponse> {
         return safePost("/api/ventas/realizar", credentials = credentials)
+    }
+
+    suspend fun listVentas(credentials: Credentials): ApiResult<List<Venta>> {
+        return safeGet("/api/ventas", credentials)
     }
 
     suspend fun eliminarSesion(credentials: Credentials): ApiResult<JsonElement> {

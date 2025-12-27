@@ -9,6 +9,9 @@ version = '0.0.1-SNAPSHOT'
 description = 'proxy'
 
 java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(24)
+    }
     sourceCompatibility = '24'
     targetCompatibility = '24'
 }
@@ -39,6 +42,9 @@ dependencies {
     // Lombok
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
+    
+    // Service JWT
+    implementation 'com.auth0:java-jwt:4.4.0'
 
     // Testing
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
