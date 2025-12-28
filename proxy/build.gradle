@@ -10,8 +10,10 @@ description = 'proxy'
 
 java {
     toolchain {
-        languageVersion = JavaLanguageVersion.of(17)
+        languageVersion = JavaLanguageVersion.of(24)
     }
+    sourceCompatibility = '24'
+    targetCompatibility = '24'
 }
 
 configurations {
@@ -25,12 +27,26 @@ repositories {
 }
 
 dependencies {
+    // Spring Boot
     implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'org.apache.kafka:kafka-streams'
+
+    // Redis
+    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+    // Kafka
     implementation 'org.springframework.kafka:spring-kafka'
-    implementation 'org.springframework.session:spring-session-data-redis'
+
+    // DotEnv support
+    implementation 'me.paulschwarz:spring-dotenv:4.0.0'
+
+    // Lombok
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
+    
+    // Service JWT
+    implementation 'com.auth0:java-jwt:4.4.0'
+
+    // Testing
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.kafka:spring-kafka-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
