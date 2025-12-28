@@ -1,0 +1,7 @@
+TEAM_ID=
+
+PRODUCT_NAME=sistema-eventos
+PRODUCT_BUNDLE_IDENTIFIER=org.eventos.project.sistema-eventos$(TEAM_ID)
+
+CURRENT_PROJECT_VERSION=1
+MARKETING_VERSION=1.0

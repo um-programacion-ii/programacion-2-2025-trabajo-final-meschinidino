@@ -1,0 +1,43 @@
+spring:
+  application:
+    name: eventos-proxy
+
+  data:
+    redis:
+      host: ${CATEDRA_HOST}
+      port: ${CATEDRA_REDIS_PORT}
+
+  kafka:
+    bootstrap-servers: ${CATEDRA_HOST}:${CATEDRA_KAFKA_PORT}
+    listener:
+      auto-startup: true
+    consumer:
+      group-id: ${KAFKA_CONSUMER_GROUP_ID}
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+
+server:
+  port: ${PROXY_PORT:8081}
+
+backend:
+  url: ${BACKEND_URL:http://localhost:${BACKEND_PORT:8080}}
+  webhook-token: ${SYNC_WEBHOOK_TOKEN}
+
+catedra:
+  url: ${CATEDRA_URL}
+  token: ${CATEDRA_TOKEN}
+
+logging:
+  level:
+    com.eventos: INFO
+    org.springframework.kafka: WARN
+    org.apache.kafka: ERROR
+    org.apache.kafka.clients.NetworkClient: ERROR
+
+service:
+  jwt:
+    secret: ${SERVICE_JWT_SECRET}
+    issuer: ${SERVICE_JWT_ISSUER:eventos-proxy}
+    expected-issuer: ${SERVICE_JWT_EXPECTED_ISSUER:eventos-backend}
+    ttl-seconds: ${SERVICE_JWT_TTL_SECONDS:300}
