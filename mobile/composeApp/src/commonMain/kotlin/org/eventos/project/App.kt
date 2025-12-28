@@ -19,6 +19,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.jsonPrimitive
@@ -135,33 +136,6 @@ fun App() {
                 }
                 setLoading(false)
             }
-        }
-
-        fun parseSeatStatuses(
-            asientos: JsonElement?,
-            rows: Int,
-            cols: Int,
-        ): Map<SeatKey, SeatStatus> {
-            if (asientos !is JsonObject) return emptyMap()
-            val regex = Regex("fila:(\\d+):columna:(\\d+)")
-            val result = mutableMapOf<SeatKey, SeatStatus>()
-            for ((key, value) in asientos) {
-                val match = regex.find(key) ?: continue
-                val row = match.groupValues[1].toIntOrNull() ?: continue
-                val col = match.groupValues[2].toIntOrNull() ?: continue
-                if (row < 1 || col < 1 || row > rows || col > cols) continue
-                
-                // Map string status to Enum
-                val statusStr = value.jsonPrimitive.content.lowercase()
-                val status = when {
-                     "vend" in statusStr || "ocup" in statusStr -> SeatStatus.SOLD
-                     "bloq" in statusStr || "reserv" in statusStr -> SeatStatus.BLOCKED
-                     "libre" in statusStr -> SeatStatus.FREE
-                     else -> SeatStatus.UNKNOWN
-                }
-                result[SeatKey(row, col)] = status
-            }
-            return result
         }
 
         fun refreshSeatStatuses(detail: EventoDetalleResponse) {
@@ -519,5 +493,79 @@ fun App() {
                 }
             }
         }
+    }
+}
+
+private fun parseSeatStatuses(
+    asientos: JsonElement?,
+    rows: Int,
+    cols: Int,
+): Map<SeatKey, SeatStatus> {
+    if (asientos == null) return emptyMap()
+
+    return when (asientos) {
+        is JsonArray -> parseSeatArray(asientos, rows, cols)
+        is JsonObject -> {
+            val asientosArray = asientos["asientos"]
+            if (asientosArray is JsonArray) {
+                parseSeatArray(asientosArray, rows, cols)
+            } else {
+                parseSeatMap(asientos, rows, cols)
+            }
+        }
+        else -> emptyMap()
+    }
+}
+
+private fun parseSeatMap(
+    asientos: JsonObject,
+    rows: Int,
+    cols: Int,
+): Map<SeatKey, SeatStatus> {
+    val regex = Regex("fila:(\\d+):columna:(\\d+)")
+    val result = mutableMapOf<SeatKey, SeatStatus>()
+    for ((key, value) in asientos) {
+        val match = regex.find(key) ?: continue
+        val row = match.groupValues[1].toIntOrNull() ?: continue
+        val col = match.groupValues[2].toIntOrNull() ?: continue
+        if (row < 1 || col < 1 || row > rows || col > cols) continue
+        result[SeatKey(row, col)] = resolveSeatStatus(value)
+    }
+    return result
+}
+
+private fun parseSeatArray(
+    asientos: JsonArray,
+    rows: Int,
+    cols: Int,
+): Map<SeatKey, SeatStatus> {
+    val result = mutableMapOf<SeatKey, SeatStatus>()
+    for (element in asientos) {
+        val seatObj = element as? JsonObject ?: continue
+        val row = seatObj["fila"]?.jsonPrimitive?.content?.toIntOrNull() ?: continue
+        val col = seatObj["columna"]?.jsonPrimitive?.content?.toIntOrNull() ?: continue
+        if (row < 1 || col < 1 || row > rows || col > cols) continue
+        val estado = seatObj["estado"]?.jsonPrimitive?.content
+        result[SeatKey(row, col)] = resolveSeatStatus(estado)
+    }
+    return result
+}
+
+private fun resolveSeatStatus(value: JsonElement?): SeatStatus {
+    val status = when (value) {
+        is JsonObject -> value["estado"]?.jsonPrimitive?.content
+        else -> value?.jsonPrimitive?.content
+    }
+    return resolveSeatStatus(status)
+}
+
+private fun resolveSeatStatus(status: String?): SeatStatus {
+    val statusStr = status?.lowercase().orEmpty()
+    return when {
+        "vend" in statusStr || "ocup" in statusStr -> SeatStatus.SOLD
+        "bloq" in statusStr || "reserv" in statusStr -> SeatStatus.BLOCKED
+        "libre" in statusStr -> SeatStatus.FREE
+        statusStr.isBlank() -> SeatStatus.FREE
+        else -> SeatStatus.UNKNOWN
     }
 }
