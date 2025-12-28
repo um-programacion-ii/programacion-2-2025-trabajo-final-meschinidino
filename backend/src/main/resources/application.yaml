@@ -15,26 +15,33 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
-  data:
-    redis:
-      host: ${REDIS_LOCAL_HOST:localhost}
-      port: ${REDIS_LOCAL_PORT:6379}
-  session:
-    store-type: redis
-    timeout: 30m
-    redis:
-      flush-mode: on-save
-      namespace: spring:session
 server:
   port: ${BACKEND_PORT:8080}
-# Configuración de cátedra
-catedra:
-  url: ${CATEDRA_URL}
-  token: ${CATEDRA_TOKEN}
 # Configuración de proxy
 proxy:
   url: http://localhost:${PROXY_PORT:8081}
+sync:
+  webhook:
+    token: ${SYNC_WEBHOOK_TOKEN:}
+# SpringDoc OpenAPI / Swagger
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: method
+    tags-sorter: alpha
+    try-it-out-enabled: true
+    filter: true
+  show-actuator: false
 logging:
   level:
     com.eventos: DEBUG
     org.springframework.web: DEBUG
+
+service:
+  jwt:
+    secret: ${SERVICE_JWT_SECRET}
+    issuer: ${SERVICE_JWT_ISSUER:eventos-backend}
+    expected-issuer: ${SERVICE_JWT_EXPECTED_ISSUER:eventos-proxy}
+    ttl-seconds: ${SERVICE_JWT_TTL_SECONDS:300}
