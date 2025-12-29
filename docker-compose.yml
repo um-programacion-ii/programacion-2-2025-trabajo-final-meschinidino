@@ -1,0 +1,62 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: eventos-postgres
+    environment:
+      POSTGRES_DB: eventos_db
+      POSTGRES_USER: eventos_user
+      POSTGRES_PASSWORD: eventos_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - eventos-network
+
+  backend:
+    build: ./backend
+    container_name: eventos-backend
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME:-eventos_db}
+      DB_USER: ${DB_USER:-eventos_user}
+      DB_PASSWORD: ${DB_PASSWORD:-eventos_pass}
+      BACKEND_PORT: ${BACKEND_PORT:-8080}
+      PROXY_URL: http://proxy:8081
+      SYNC_WEBHOOK_TOKEN: ${SYNC_WEBHOOK_TOKEN}
+      SERVICE_JWT_SECRET: ${SERVICE_JWT_SECRET}
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+    networks:
+      - eventos-network
+
+  proxy:
+    build: ./proxy
+    container_name: eventos-proxy
+    environment:
+      PROXY_PORT: ${PROXY_PORT:-8081}
+      BACKEND_URL: http://backend:8080
+      CATEDRA_HOST: ${CATEDRA_HOST}
+      CATEDRA_REDIS_PORT: ${CATEDRA_REDIS_PORT:-6379}
+      CATEDRA_KAFKA_PORT: ${CATEDRA_KAFKA_PORT:-9092}
+      CATEDRA_URL: ${CATEDRA_URL}
+      CATEDRA_TOKEN: ${CATEDRA_TOKEN}
+      KAFKA_CONSUMER_GROUP_ID: ${KAFKA_CONSUMER_GROUP_ID:-eventos-consumer-group}
+      SYNC_WEBHOOK_TOKEN: ${SYNC_WEBHOOK_TOKEN}
+      SERVICE_JWT_SECRET: ${SERVICE_JWT_SECRET}
+    ports:
+      - "8081:8081"
+    depends_on:
+      - backend
+    networks:
+      - eventos-network
+
+volumes:
+  postgres_data:
+
+networks:
+  eventos-network:
+    driver: bridge
